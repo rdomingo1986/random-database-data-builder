@@ -11,21 +11,21 @@
 class Person implements ISchema {
 
   /**
-	 * Table name.
+	 * Principal table name.
 	 *
 	 * @var	string
 	 */
   public $table;
 
   /**
-	 * Primary key for the table.
+	 * Principal table primary key.
 	 *
 	 * @var	string
 	 */
   public $primaryKey;
 
   /**
-	 * Columns definition of the table. Load de array with the same order of table columns.
+	 * Columns definition of the principal table. NOTE: Try to load de array with the same order of table columns.
 	 *
 	 * @var	array
 	 */
@@ -39,27 +39,27 @@ class Person implements ISchema {
    * *** WHEN 'files' ***
    * $randomize[COLUMN_NAME]['path'] => Path of the origin data file
    * $randomize[COLUMN_NAME]['num_lines'] => Lines number of the file
-   * $randomize[COLUMN_NAME]['optional_value'] => Only use this key when the column can be optional and set the optional value
+   * $randomize[COLUMN_NAME]['optional_value'] => Only use this key when the column can be optional and use this key to set the optional value
    * 
    * 
    * 
    * *** WHEN 'in-list' ***
    * $randomize[COLUMN_NAME]['list'] => An array of possible values
-   * $randomize[COLUMN_NAME]['optional_value'] => Only use this key when the column can be optional and set the optional value
+   * $randomize[COLUMN_NAME]['optional_value'] => Only use this key when the column can be optional and use this key to set the optional value
    * 
    * 
    * 
    * *** WHEN 'range-numbers' ***
    * $randomize[COLUMN_NAME]['min'] => Minimum integer number of the range
    * $randomize[COLUMN_NAME]['max'] => Maximum integer number of the range
-   * $randomize[COLUMN_NAME]['optional_value'] => Only use this key when the column can be optional and set the optional value
+   * $randomize[COLUMN_NAME]['optional_value'] => Only use this key when the column can be optional and use this key to set the optional value
    * 
    * 
    * 
    * *** WHEN 'datetime' ***
    * $randomize[COLUMN_NAME]['min_datetime'] => Minimum datetime mysql format
    * $randomize[COLUMN_NAME]['max_datetime'] => Maximum datetime mysql format
-   * $randomize[COLUMN_NAME]['optional_value'] => Only use this key when the column can be optional and set the optional value
+   * $randomize[COLUMN_NAME]['optional_value'] => Only use this key when the column can be optional and use this key to set the optional value
    * 
    * 
    * 

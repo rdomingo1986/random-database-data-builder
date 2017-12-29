@@ -2,7 +2,7 @@
 /**
  * DataGenerator Class
  *
- * Generate random data for database tables.
+ * Controller for random data and register in database tables.
  *
  * @author	Domingo Ramirez
  * @license	http://opensource.org/licenses/MIT	MIT License
@@ -10,9 +10,10 @@
  */
 
 date_default_timezone_set('America/Mexico_City');
-include '/config/ISchema.php';
+require_once '/config/ISchema.php';
 include '/config/PDatabase.php';
-include 'DBConnector.php'; 
+include 'DBConnector.php';
+include 'Randomizer.php';
 
 
 class DataGenerator {
@@ -27,7 +28,7 @@ class DataGenerator {
   /**
 	 * Class constructor
 	 *
-	 * Configura database connection and table schema. 
+	 * Configura database connection and table(s) schema(s). 
    * 
    * @param   string $schemaFile An optional parameter for indicate the config file of the table schema
 	 * @return	void
@@ -44,7 +45,7 @@ class DataGenerator {
   }
 
   /**
-	 * Load the table schema in the object. 
+	 * Load the table(s) schema(s) in the object. 
    * 
    * @param   string $schema The table schema
 	 * @return	void
@@ -89,7 +90,7 @@ class DataGenerator {
   private function makeAction($item = array()) {
     foreach($this->randomize AS $key => $val) {
       if($val != 'special_cases') {
-        $item[$key] = $this->randomizeValue($val);
+        $item[$key] = Randomizer::letsRide($val);
       }
     }
     if(array_key_exists('special_cases', $this->randomize)) {
@@ -102,7 +103,7 @@ class DataGenerator {
               if($useOptional) {
                 $specialCases[$key] = $val['optional_value'];
               } else {
-                $specialCases[$key] = $this->randomizeValue($val);
+                $specialCases[$key] = Randomizer::letsRide($val);
               }
             }
           }
@@ -113,44 +114,6 @@ class DataGenerator {
       }
     }
     $this->insertDB($item);
-  }
-
-  /**
-	 * Random type selection.
-   * 
-   * @param   array $randomize The table schema
-	 * @return	void
-	 */
-  private function randomizeValue($randomize) {
-    if(array_key_exists('optional_value', $randomize)) {
-      $useOptional = (bool) mt_rand(0,1);
-      if($useOptional) {
-        return $randomize['optional_value'];
-      }
-    }
-    switch($randomize['type']) {
-      case 'file':
-        return DataGenerator::byFile($randomize);
-        break;
-      case 'date':
-        return DataGenerator::byDate($randomize);
-        break;
-      case 'time':
-        return DataGenerator::byTime($randomize);
-        break;
-      case 'datetime':
-        return DataGenerator::byDateTime($randomize);
-        break;
-      case 'range-numbers':
-        return DataGenerator::byRangeNumbers($randomize);
-        break;
-      case 'in-list':
-        return DataGenerator::byList($randomize);
-        break;
-      case 'database':
-        return DataGenerator::byDB($randomize);
-        break;
-    }
   }
 
   /**
@@ -169,95 +132,5 @@ class DataGenerator {
     $query = 'INSERT INTO ' . $this->table . ' (' . implode(', ',$this->columns) . ') VALUES (' . substr($values, 0, -2) . ')';
     // echo $query;
     $this->db->query($query);
-  }
-
-  /**
-	 * Randomize data from a file.
-   * 
-   * @param   array $params The table schema
-	 * @return	void
-	 */
-  private static function byFile($params) {
-    $file = fopen($params['path'], 'r') or die("Unable to open file!");
-    while(!feof($file)) {
-      $lines[] = fgets($file);
-    }
-    fclose($file);
-    return ucwords(strtolower($lines[mt_rand(0, ($params['num_lines'] - 1))]));
-  }
-
-  /**
-	 * Randomize data from a date range.
-   * 
-   * @param   array $params The table schema
-	 * @return	void
-	 */
-  private static function byDate($params) {
-    return date('Y-m-d', mt_rand(strtotime($params['min_date']), strtotime($params['max_date'])));
-  }
-
-  /**
-	 * Randomize data from a time range.
-   * 
-   * @param   array $params The table schema
-	 * @return	void
-	 */
-  private static function byTime($params) {
-    return date('H:i:s', mt_rand(strtotime($params['min_time']), strtotime($params['max_time'])));
-  }
-
-  /**
-	 * Randomize data from a datetime range. 
-   * 
-   * @param   array $params The table schema
-	 * @return	void
-	 */
-  private static function byDateTime($params) {
-    return date('Y-m-d H:i:s', mt_rand(strtotime($params['min_datetime']), strtotime($params['max_datetime'])));
-  }
-
-  /**
-	 * Randomize data from a range of numbers. 
-   * 
-   * @param   array $params The table schema
-	 * @return	void
-	 */
-  private static function byRangeNumbers($params) {
-    return mt_rand($params['min'], $params['max']);
-  }
-
-  /**
-	 * Randomize data from a list array origin. 
-   * 
-   * @param   array $params The table schema
-	 * @return	void
-	 */
-  private static function byList($params) {
-    return $params['list'][mt_rand(0, (count($params['list']) -1 ))];
-  }
-
-  /**
-	 * Randomize data from a database origin. 
-   * 
-   * @param   array $params The table schema
-	 * @return	void
-	 */
-  private static function byDB($params) {
-    if(array_key_exists('database', $params) && gettype($params['database']) === 'array') {
-      $connectionData = array(
-        'DBHost' => $params['database']['connection']['DBHost'],
-        'DBUsername' => $params['database']['connection']['DBUsername'],
-        'DBPassword' => $params['database']['connection']['DBPassword'],
-        'DBName' => $params['database']['connection']['DBName']
-      );
-      $db = DBConnector::conex(new PDatabase($connectionData));
-    } else {
-      $db = DBConnector::conex(new PDatabase());
-    }
-    $resultSet = $db->query('SELECT ' . $params['database']['column'] . ' FROM ' . $params['database']['table'] . ' ');
-    while($item = $resultSet->fetch_assoc()) {
-      $items[] = $item[$params['database']['column']] ;
-    }
-    return $items[mt_rand(0, (count($items) - 1))];
   }
 }

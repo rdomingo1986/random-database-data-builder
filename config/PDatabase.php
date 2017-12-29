@@ -41,9 +41,9 @@ class PDatabase {
   /**
 	 * Class constructor
 	 *
-	 * Set connection data. 
+	 * Set connection data and create connector. 
    * 
-	 * @param 	mixed	$connectionData	An optional parameter for connection to another database
+	 * @param 	boolean(false)|array	$connectionData	An optional parameter for connection to another database
 	 * @return	void
 	 */
   public function __construct($connectionData = false) {
