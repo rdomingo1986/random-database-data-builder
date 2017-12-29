@@ -1,5 +1,89 @@
 <?php
+/**
+ * Person Class
+ *
+ * Example configuration schema.
+ *
+ * @author	Domingo Ramirez
+ * @license	http://opensource.org/licenses/MIT	MIT License
+ * @link	https://github.com/rdomingo1986
+ */
 class Person implements ISchema {
+
+  /**
+	 * Table name.
+	 *
+	 * @var	string
+	 */
+  public $table;
+
+  /**
+	 * Primary key for the table.
+	 *
+	 * @var	string
+	 */
+  public $primaryKey;
+
+  /**
+	 * Columns definition of the table. Load de array with the same order of table columns.
+	 *
+	 * @var	array
+	 */
+  public $columns;
+
+  /**
+	 * Configuration columns for data generation. 
+   * Every key of the array behoove to a column in de table.
+	 *
+   * $randomize[COLUMN_NAME]['type'] => Origin of the data (files | in-list | range-numbers | datetime | database)
+   * *** WHEN 'files' ***
+   * $randomize[COLUMN_NAME]['path'] => Path of the origin data file
+   * $randomize[COLUMN_NAME]['num_lines'] => Lines number of the file
+   * $randomize[COLUMN_NAME]['optional_value'] => Only use this key when the column can be optional and set the optional value
+   * 
+   * 
+   * 
+   * *** WHEN 'in-list' ***
+   * $randomize[COLUMN_NAME]['list'] => An array of possible values
+   * $randomize[COLUMN_NAME]['optional_value'] => Only use this key when the column can be optional and set the optional value
+   * 
+   * 
+   * 
+   * *** WHEN 'range-numbers' ***
+   * $randomize[COLUMN_NAME]['min'] => Minimum integer number of the range
+   * $randomize[COLUMN_NAME]['max'] => Maximum integer number of the range
+   * $randomize[COLUMN_NAME]['optional_value'] => Only use this key when the column can be optional and set the optional value
+   * 
+   * 
+   * 
+   * *** WHEN 'datetime' ***
+   * $randomize[COLUMN_NAME]['min_datetime'] => Minimum datetime mysql format
+   * $randomize[COLUMN_NAME]['max_datetime'] => Maximum datetime mysql format
+   * $randomize[COLUMN_NAME]['optional_value'] => Only use this key when the column can be optional and set the optional value
+   * 
+   * 
+   * 
+   * *** WHEN 'database' ***
+   * $randomize[COLUMN_NAME]['table'] => The origin data table.
+   * $randomize[COLUMN_NAME]['column'] => The column data to get from the table.
+   * $randomize[COLUMN_NAME]['connection'] => An optional array for connect to a diferent database.
+   *    *** WHEN TYPE array ***
+   *      $randomize[COLUMN_NAME]['connection']['DBHost'] => Database host or ip
+   *      $randomize[COLUMN_NAME]['connection']['DBUsername'] => Database username
+   *      $randomize[COLUMN_NAME]['connection']['DBPassword'] => Database user password
+   *      $randomize[COLUMN_NAME]['connection']['DBName'] => Database name
+   *
+	 * @var	array
+	 */
+  public $randomize;
+
+  /**
+	 * Class constructor
+	 *
+	 * Configure schema data for the table. 
+   * 
+	 * @return	void
+	 */
   public function __construct() {
     $this->table = 'person';
     $this->primaryKey = 'id';
@@ -23,7 +107,7 @@ class Person implements ISchema {
             'DBUsername' => 'root',
             'DBPassword' => '12345678',
             'DBName' => 'globaltech_jobs'
-            ),
+          ),
           'table' => 'client_type',
           'column' => 'id'
         )

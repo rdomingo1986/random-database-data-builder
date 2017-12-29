@@ -1,6 +1,51 @@
 <?php
+/**
+ * PDatabase Class
+ *
+ * Data for connection database.
+ *
+ * @author	Domingo Ramirez
+ * @license	http://opensource.org/licenses/MIT	MIT License
+ * @link	https://github.com/rdomingo1986
+ */
 class PDatabase {
+
+  /**
+	 * Database host or ip
+	 *
+	 * @var	string
+	 */
+  public $DBHost;
+
+  /**
+	 * Database username
+	 *
+	 * @var	string
+	 */
+  public $DBUsername;
+
+  /**
+	 * Database user password
+	 *
+	 * @var	string
+	 */
+  public $DBPassword;
+
+  /**
+	 * Database name.
+	 *
+	 * @var	string
+	 */
+  public $DBName;
   
+  /**
+	 * Class constructor
+	 *
+	 * Set connection data. 
+   * 
+	 * @param 	mixed	$connectionData	An optional parameter for connection to another database
+	 * @return	void
+	 */
   public function __construct($connectionData = false) {
     if(!$connectionData) {
       $this->DBHost = 'localhost';
