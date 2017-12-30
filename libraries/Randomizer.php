@@ -10,7 +10,6 @@
  */
 
 date_default_timezone_set('America/Mexico_City');
-// require_once '/config/ISchema.php';
 
 class Randomizer {
 
@@ -116,23 +115,8 @@ class Randomizer {
 	 * @return	void
 	 */
   public static function byDB($params) {
-    require_once '/config/PDatabase.php';
-    require_once 'DBConnector.php';
-    if(array_key_exists('database', $params) && gettype($params['database']) === 'array') {
-      $connectionData = array(
-        'DBHost' => $params['database']['connection']['DBHost'],
-        'DBUsername' => $params['database']['connection']['DBUsername'],
-        'DBPassword' => $params['database']['connection']['DBPassword'],
-        'DBName' => $params['database']['connection']['DBName']
-      );
-      $db = DBConnector::conex(new PDatabase($connectionData));
-    } else {
-      $db = DBConnector::conex(new PDatabase());
-    }
-    $resultSet = $db->query('SELECT ' . $params['database']['column'] . ' FROM ' . $params['database']['table'] . ' ');
-    while($item = $resultSet->fetch_assoc()) {
-      $items[] = $item[$params['database']['column']] ;
-    }
+    require_once 'DBModels.php';
+    $items = DBModels::selectForRandomize($params);
     return $items[mt_rand(0, (count($items) - 1))];
   }
 }

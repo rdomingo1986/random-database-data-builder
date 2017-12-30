@@ -10,9 +10,6 @@
  */
 
 date_default_timezone_set('America/Mexico_City');
-require_once '/config/ISchema.php';
-require_once '/config/PDatabase.php';
-require_once 'DBConnector.php';
 require_once 'Randomizer.php';
 require_once 'DBModels.php';
 
@@ -30,33 +27,50 @@ class DataGenerator {
 	 *
 	 * Configura database connection and table(s) schema(s). 
    * 
-   * @param   string $schemaFile An optional parameter for indicate the config file of the table schema
+   * @param   string|array $schemaFile A parameter for indicate the config file(s) of the table(s) schema(s)
 	 * @return	void
 	 */
-  public function __construct($schemaFile = '') {
-    $this->model = new DBModels($schemaFile);
+  public function __construct($schemaFile) {
+    $i = 1;
+    if(gettype($schemaFile) === 'string') {
+      $this->{'model'.$i} = new DBModels($schemaFile);
+    } else {
+      foreach($schemaFile AS $file) {
+        $this->{'model'.$i} = new DBModels($file);
+        $i++;
+      }
+    }
   }
 
   /**
 	 * Generate new random data.
    * 
+   * @param   int $qty The table schema 
    * @param   int $qty The table schema
 	 * @return	void
 	 */
-  public function makeNew($qty = 1) {
-    for($i = 1; $i <= $qty; $i++) {
-      $this->makeAction();
-    }
-  }
-
-  /**
-	 * Randomize cloned data.
-   * 
-	 * @return	void
-	 */
-  public function makeClone() {
-    while($item = $this->model->selectForCloning()->fetch_assoc()) {
-      $this->makeAction($item);
+  public function Go() {
+    if($this->model1->operation == 'generate') {
+      for($i = 1; $i <= $this->model1->qty; $i++) {
+        $insert_id = $this->makeAction();
+        if($this->model1->withChild) {
+          if(gettype($this->model2->qty) === 'integer') {
+            for($j = 0; $j < $this->model2->qty; $j++) {
+              $this->makeAction('model2', [], $insert_id);
+            }
+          } else if(gettype($this->model2->qty) === 'array') {
+            $limit = mt_rand($this->model2->qty[0], $this->model2->qty[1]);
+            for($j = $this->model2->qty[0]; $j < $limit; $j++) {
+              $this->makeAction('model2', [], $insert_id);
+            }
+          }
+        }
+      }
+    } else {
+      while($item = $this->model1->selectForCloning()->fetch_assoc()) {
+        $this->makeAction('model1', $item);
+        // clone with child table
+      }
     }
   }
 
@@ -66,32 +80,10 @@ class DataGenerator {
    * @param   array $item The table schema
 	 * @return	void
 	 */
-  private function makeAction($item = array()) {
-    foreach($this->model->randomize AS $key => $val) {
-      if($val != 'special_cases') {
-        $item[$key] = Randomizer::letsRide($val);
-      }
+  private function makeAction($model = 'model1', $item = array(), $foreingKey = null) {
+    foreach($this->{$model}->randomize AS $key => $val) {
+      $item[$key] = Randomizer::letsRide($val);
     }
-    if(array_key_exists('special_cases', $this->model->randomize)) {
-      $specialCases = array();
-      foreach($this->model->randomize['special_cases'] AS $index => $especialCase) {
-        if($index == 'related') {
-          $useOptional = (bool) mt_rand(0,1);
-          foreach($especialCase AS $key => $val) {
-            if(array_key_exists('optional_value', $val)) {
-              if($useOptional) {
-                $specialCases[$key] = $val['optional_value'];
-              } else {
-                $specialCases[$key] = Randomizer::letsRide($val);
-              }
-            }
-          }
-        }
-      }
-      foreach($specialCases AS $key => $val) {
-        $item[$key] = $val;
-      }
-    }
-    $this->model->insertDB($item);
+    return $this->{$model}->insertDB($item, $foreingKey);
   }
 }

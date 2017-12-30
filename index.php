@@ -3,9 +3,10 @@
   $time_start = microtime(true);
   include 'libraries/DataGenerator.php';
 
-  $cloner = new DataGenerator('Person');
-  $cloner->makeNew(2000);
-  // $cloner->makeClone();
+
+  $generator = new DataGenerator(array('Example2/Person', 'Example2/Child'));
+  $generator->Go();
+  // $generator->makeClone();
 
   $time_end = microtime(true);
   $execution_time = ($time_end - $time_start)/60;

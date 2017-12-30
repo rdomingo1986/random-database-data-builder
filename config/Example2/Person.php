@@ -2,7 +2,7 @@
 /**
  * Person Class
  *
- * Example configuration schema.
+ * Example configuration schema for a single table an various data origins.
  *
  * @author	Domingo Ramirez
  * @license	http://opensource.org/licenses/MIT	MIT License
@@ -149,6 +149,12 @@ class Person implements ISchema {
         'out_format' => 'Y-m-d H:i:s', // 'timestamp' | 'Y-m-d' | 'Y-m-d H:i:s' | 'H:i:s'
       )
     );
+
+    $this->operation = 'generate'; // generate | clone
+
+    $this->qty = 2000; // generate | clone
+
+    $this->withChild = true;
   }
 }
 ?>

@@ -10,7 +10,7 @@
  */
 
 date_default_timezone_set('America/Mexico_City');
-require_once '/config/ISchema.php';
+require_once 'ISchema.php';
 require_once '/config/PDatabase.php';
 require_once 'DBConnector.php';
 
@@ -28,18 +28,19 @@ class DBModels {
 	 *
 	 * Configura database connection and table(s) schema(s). 
    * 
-   * @param   string $schemaFile An optional parameter for indicate the config file of the table schema
+   * @param   string|array $schemaFile A parameter for indicate the config file(s) of the table(s) schema(s)
 	 * @return	void
 	 */
-  public function __construct($schemaFile = '') {
+  public function __construct($schemaFile) {
     $this->db = DBConnector::conex(new PDatabase());
-    if(trim($schemaFile) === '') {
-      include '/config/Schema.php';
-      $this->loadSchema(new Schema());
+    include '/config/' . $schemaFile . '.php';
+    if(!strpos($schemaFile,'/')) {
+      $className = $schemaFile;
     } else {
-      include '/config/' . $schemaFile . '.php';
-      $this->loadSchema(new $schemaFile());
+      $schemaFileChuncks = explode('/', $schemaFile);
+      $className = $schemaFileChuncks[count($schemaFileChuncks) - 1];
     }
+    $this->loadSchema(new $className());
   }
 
   /**
@@ -48,7 +49,7 @@ class DBModels {
    * @param   string $schema The table schema
 	 * @return	void
 	 */
-  protected function loadSchema(ISchema $schema) {
+  private function loadSchema(ISchema $schema) {
     foreach($schema AS $key => $val) {
       $this->{$key} = $val;
     }
@@ -60,16 +61,26 @@ class DBModels {
    * @param   array $item The table schema
 	 * @return	void
 	 */
-  public function insertDB($item) {
+  public function insertDB($item, $foreingKey = null) {
     $values = 'NULL, ';
+    $fkExists = isset($foreingKey) && gettype((int)$foreingKey) === 'integer';
     foreach($this->columns AS $index => $column) {
       if($index != $this->primaryKey) {
-        $values .= '"' . $item[$column] . '", ';
+        if($fkExists) {
+          if($column == $this->foreinKey) {
+            $values .= '"' . $foreingKey . '", ';
+          } else {
+            $values .= '"' . $item[$column] . '", ';    
+          }
+        } else {
+          $values .= '"' . $item[$column] . '", ';
+        }
       }
     }
     $query = 'INSERT INTO ' . $this->table . ' (' . implode(', ',$this->columns) . ') VALUES (' . substr($values, 0, -2) . ')';
     // echo $query;
     $this->db->query($query);
+    return $this->db->insert_id;
   }
 
   /**
@@ -81,5 +92,30 @@ class DBModels {
   public function selectForCloning($item) {
     $query = 'SELECT ' . implode(', ',$this->columns) . ' FROM ' . $this->table . '';
     return $this->db->query($query);
+  }
+
+  /**
+	 * Database selection for origin data source tables.
+   * 
+   * @param   array $item The table schema
+	 * @return	void
+	 */
+  public static function selectForRandomize($item) {
+    if(array_key_exists('database', $item) && gettype($item['database']) === 'array') {
+      $connectionData = array(
+        'DBHost' => $item['database']['connection']['DBHost'],
+        'DBUsername' => $item['database']['connection']['DBUsername'],
+        'DBPassword' => $item['database']['connection']['DBPassword'],
+        'DBName' => $item['database']['connection']['DBName']
+      );
+      $db = DBConnector::conex(new PDatabase($connectionData));
+    } else {
+      $db = DBConnector::conex(new PDatabase());
+    }
+    $resultSet = $db->query('SELECT ' . $item['database']['column'] . ' FROM ' . $item['database']['table'] . '');
+    while($register = $resultSet->fetch_assoc()) {
+      $items[] = $register[$item['database']['column']] ;
+    }
+    return $items;
   }
 }
