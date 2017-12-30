@@ -112,12 +112,12 @@ class Person implements ISchema {
           'column' => 'id'
         )
       ),
-      'name' => array(
+      'name' => array( //add format options upercase lowercase and capitalize or without format
         'type' => 'file',
         'path' => 'files/nameslist.txt',
         'num_lines' => 200
       ),
-      'last_name' => array(
+      'last_name' => array(  //add format options upercase lowercase and capitalize  or without format
         'type' => 'file',
         'path' => 'files/lastnameslist.txt',
         'num_lines' => 200
@@ -143,9 +143,10 @@ class Person implements ISchema {
         'max' => 9999999999 
       ),
       'created_at' => array(
-        'type' => 'datetime',
-        'min_datetime' => '2017-12-28 08:00:00',
-        'max_datetime' => '2018-12-28 18:00:00'
+        'type' => 'datetime-formats',
+        'min_datetime' => '2017-12-28 08:00:00', // min range
+        'max_datetime' => '2018-12-28 18:00:00', // max range
+        'out_format' => 'Y-m-d H:i:s', // 'timestamp' | 'Y-m-d' | 'Y-m-d H:i:s' | 'H:i:s'
       )
     );
   }

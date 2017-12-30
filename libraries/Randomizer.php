@@ -10,8 +10,7 @@
  */
 
 date_default_timezone_set('America/Mexico_City');
-require_once '/config/ISchema.php';
-
+// require_once '/config/ISchema.php';
 
 class Randomizer {
 
@@ -38,8 +37,8 @@ class Randomizer {
       case 'time':
         return Randomizer::byTime($randomize);
         break;
-      case 'datetime':
-        return Randomizer::byDateTime($randomize);
+      case 'datetime-formats':
+        return Randomizer::byDateTimeFormats($randomize);
         break;
       case 'range-numbers':
         return Randomizer::byRangeNumbers($randomize);
@@ -69,33 +68,25 @@ class Randomizer {
   }
 
   /**
-	 * Randomize data from a date range.
+	 * Randomize data from a datetime format range. 
    * 
    * @param   array $params The table schema
 	 * @return	void
 	 */
-  public static function byDate($params) {
-    return date('Y-m-d', mt_rand(strtotime($params['min_date']), strtotime($params['max_date'])));
-  }
+  public static function byDateTimeFormats($params) {
+    if(gettype((int) $params['min_datetime']) !== 'integer') {
+      $params['min_datetime'] = strtotime($params['min_datetime']);
+    }
 
-  /**
-	 * Randomize data from a time range.
-   * 
-   * @param   array $params The table schema
-	 * @return	void
-	 */
-  public static function byTime($params) {
-    return date('H:i:s', mt_rand(strtotime($params['min_time']), strtotime($params['max_time'])));
-  }
+    if(gettype((int) $params['max_datetime']) !== 'integer') {
+      $params['max_datetime'] = strtotime($params['max_datetime']);
+    }
 
-  /**
-	 * Randomize data from a datetime range. 
-   * 
-   * @param   array $params The table schema
-	 * @return	void
-	 */
-  public static function byDateTime($params) {
-    return date('Y-m-d H:i:s', mt_rand(strtotime($params['min_datetime']), strtotime($params['max_datetime'])));
+    if($params['in_format'] == 'timestamp') {
+      return mt_rand($params['min_datetime'], $params['max_datetime']);
+    } else {
+      return date($params['out_format'], mt_rand($params['min_datetime'], $params['max_datetime']));
+    }
   }
 
   /**
@@ -125,6 +116,8 @@ class Randomizer {
 	 * @return	void
 	 */
   public static function byDB($params) {
+    require_once '/config/PDatabase.php';
+    require_once 'DBConnector.php';
     if(array_key_exists('database', $params) && gettype($params['database']) === 'array') {
       $connectionData = array(
         'DBHost' => $params['database']['connection']['DBHost'],
