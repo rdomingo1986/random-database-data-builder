@@ -116,6 +116,7 @@ class DBModels {
     while($register = $resultSet->fetch_assoc()) {
       $items[] = $register[$item['database']['column']] ;
     }
+    $db->close();
     return $items;
   }
 }

@@ -6,7 +6,6 @@
 
   $generator = new DataGenerator(array('Example2/Person', 'Example2/Child'));
   $generator->Go();
-  // $generator->makeClone();
 
   $time_end = microtime(true);
   $execution_time = ($time_end - $time_start)/60;

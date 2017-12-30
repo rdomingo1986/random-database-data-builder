@@ -52,24 +52,28 @@ class DataGenerator {
   public function Go() {
     if($this->model1->operation == 'generate') {
       for($i = 1; $i <= $this->model1->qty; $i++) {
-        $insert_id = $this->makeAction();
+        $insertId = $this->makeAction();
         if($this->model1->withChild) {
-          if(gettype($this->model2->qty) === 'integer') {
-            for($j = 0; $j < $this->model2->qty; $j++) {
-              $this->makeAction('model2', [], $insert_id);
-            }
-          } else if(gettype($this->model2->qty) === 'array') {
-            $limit = mt_rand($this->model2->qty[0], $this->model2->qty[1]);
-            for($j = $this->model2->qty[0]; $j < $limit; $j++) {
-              $this->makeAction('model2', [], $insert_id);
-            }
-          }
+          $this->withChild($insertId);
         }
       }
     } else {
       while($item = $this->model1->selectForCloning()->fetch_assoc()) {
         $this->makeAction('model1', $item);
         // clone with child table
+      }
+    }
+  }
+
+  private function withChild($insertId) {
+    if(gettype($this->model2->qty) === 'integer') {
+      for($j = 0; $j < $this->model2->qty; $j++) {
+        $this->makeAction('model2', [], $insertId);
+      }
+    } else if(gettype($this->model2->qty) === 'array') {
+      $limit = mt_rand($this->model2->qty[0], $this->model2->qty[1]);
+      for($j = $this->model2->qty[0]; $j < $limit; $j++) {
+        $this->makeAction('model2', [], $insertId);
       }
     }
   }

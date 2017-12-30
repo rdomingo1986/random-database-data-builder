@@ -132,7 +132,9 @@ class Child implements ISchema {
 
     $this->operation = 'generate'; // generate | clone
 
-    $this->qty = array(0, 3); // generate | clone
+    $this->qty = array(0, 3); // quatity of registerswhen $this->operation is generate
+
+    $this->withChild = false;
   }
 }
 ?>

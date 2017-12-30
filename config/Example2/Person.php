@@ -111,6 +111,7 @@ class Person implements ISchema {
           'table' => 'client_type',
           'column' => 'id'
         )
+        // datos para saber si se va a iterar
       ),
       'name' => array( //add format options upercase lowercase and capitalize or without format
         'type' => 'file',
@@ -152,7 +153,7 @@ class Person implements ISchema {
 
     $this->operation = 'generate'; // generate | clone
 
-    $this->qty = 2000; // generate | clone
+    $this->qty = 2000; // quatity of registers when $this->operation is generate
 
     $this->withChild = true;
   }

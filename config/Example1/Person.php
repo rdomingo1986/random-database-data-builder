@@ -111,6 +111,7 @@ class Person implements ISchema {
           'table' => 'client_type',
           'column' => 'id'
         )
+        // datos para saber si se va a iterar
       ),
       'name' => array( //add format options upercase lowercase and capitalize or without format
         'type' => 'file',
